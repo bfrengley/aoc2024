@@ -6,8 +6,7 @@ import gleam/option
 import gleam/pair
 import gleam/result
 import gleam/string
-import simplifile
-import util.{ignore}
+import util.{get_input, ignore}
 
 const example_input = "3   4
 4   3
@@ -17,8 +16,7 @@ const example_input = "3   4
 3   3"
 
 pub fn run() -> Nil {
-  let assert Ok(data) =
-    simplifile.read(from: "./inputs/day01.txt") |> result.map(string.trim_end)
+  let assert Ok(data) = get_input(1)
 
   let lists =
     data
