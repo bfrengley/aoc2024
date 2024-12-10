@@ -39,6 +39,7 @@ const example_input = "47|53
 
 pub fn run() -> Nil {
   let assert Ok(in) = get_input(5)
+  // let in = example_input
 
   let lines = string.split(in, "\n")
   let #(rule_lines, update_lines) =
@@ -77,6 +78,15 @@ pub fn run() -> Nil {
   |> int.sum
   |> io.debug
   |> ignore
+
+  invalids
+  |> list.map(reorder_update(_, rules))
+  |> list.map(fn(update) {
+    list.drop(update, list.length(update) / 2) |> list.first |> result.unwrap(0)
+  })
+  |> int.sum
+  |> io.debug
+  |> ignore
 }
 
 fn is_valid_update(
@@ -101,6 +111,46 @@ fn is_valid_update_inner(
         Error(_) -> expect
       }
       is_valid_update_inner(rest, update, expect, rules)
+    }
+  }
+}
+
+fn reorder_update(
+  update: List(Int),
+  rules: dict.Dict(Int, set.Set(Int)),
+) -> List(Int) {
+  let update_vals = set.from_list(update)
+  let rules =
+    rules
+    |> dict.filter(fn(x, _) { set.contains(update_vals, x) })
+    |> dict.map_values(fn(_, ys) { set.intersection(ys, update_vals) })
+  reorder_update_inner([], set.new(), update_vals, rules)
+}
+
+fn reorder_update_inner(
+  update: List(Int),
+  update_used: set.Set(Int),
+  update_rest: set.Set(Int),
+  rules: dict.Dict(Int, set.Set(Int)),
+) -> List(Int) {
+  case set.is_empty(update_rest) {
+    True -> update
+    False -> {
+      let assert Ok(next) =
+        update_rest
+        |> set.to_list
+        |> list.find(fn(x) {
+          case dict.get(rules, x) {
+            Error(_) -> True
+            Ok(ys) -> set.is_subset(ys, update_used)
+          }
+        })
+      reorder_update_inner(
+        list.append(update, [next]),
+        set.insert(update_used, next),
+        set.delete(update_rest, next),
+        rules,
+      )
     }
   }
 }
