@@ -5,6 +5,7 @@ import day03
 import day04
 import day05
 import day06
+import day07
 import gleam/io
 
 pub fn main() {
@@ -15,6 +16,7 @@ pub fn main() {
     ["4"] -> day04.run()
     ["5"] -> day05.run()
     ["6"] -> day06.run()
+    ["7"] -> day07.run()
     _ -> io.println_error("Usage: gleam run <day>")
   }
 }
